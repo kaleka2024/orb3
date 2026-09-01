@@ -1,4 +1,4 @@
-# Modified by Raul Mur‑Artal
+# Modified by Raul Mur-Artal
 # Automatically compute the optimal scale factor for monocular VO/SLAM.
 
 # Software License Agreement (BSD License)
@@ -34,7 +34,7 @@
 # POSSIBILITY OF SUCH DAMAGE.
 #
 # Requirements:
-# sudo apt‑get install python‑argparse
+# sudo apt-get install python-argparse
 """
 This script computes the absolute trajectory error from the ground truth trajectory and the estimated trajectory.
 """
@@ -46,7 +46,7 @@ import associate                # 导入同目录下associate.py，做时间戳�
 
 
 def align(model,data):
-    """Align two trajectories using the method of Horn (closed‑form).
+    """Align two trajectories using the method of Horn (closed-form).
 
     Input:
     model -- first trajectory (3xn)
@@ -76,7 +76,7 @@ def align(model,data):
     U,d,Vh = numpy.linalg.linalg.svd(W.transpose())
     # 初始化S为单位矩阵，用于保证旋转矩阵行列式=1（右手坐标系）
     S = numpy.matrix(numpy.identity( 3 ))
-    # 如果U*Vh行列式为负，说明得到镜像，把S[2,2]置‑1修正
+    # 如果U*Vh行列式为负，说明得到镜像，把S[2,2]置-1修正
     if(numpy.linalg.det(U) * numpy.linalg.det(Vh)<0):
         S[2,2] = -1
     # 计算旋转矩阵 R = U*S*Vh
@@ -132,13 +132,13 @@ def plot_traj(ax,stamps,traj,style,color,label):
     # 对时间戳做升序排序
     stamps.sort()
     # 计算帧间隔中位数，用来判断轨迹是否间断
-    interval = numpy.median([s‑t for s,t in zip(stamps[1:],stamps[:‑1])])
+    interval = numpy.median([s-t for s,t in zip(stamps[1:],stamps[:-1])])
     x = []
     y = []
     last = stamps[0]
     # 遍历每一个时间戳，分段绘制，时间跳变大于2倍中位数则断开线条
     for i in range(len(stamps)):
-        if stamps[i]‑last < 2*interval:
+        if stamps[i]-last < 2*interval:
             x.append(traj[i][0])
             y.append(traj[i][1])
         elif len(x)>0:
@@ -270,13 +270,13 @@ if __name__=="__main__":
         fig = plt.figure()
         ax = fig.add_subplot(111)
         # 绘制真值轨迹：黑色实线
-        plot_traj(ax,first_stamps,first_xyz_full.transpose().A,'‑',"black","ground truth")
+        plot_traj(ax,first_stamps,first_xyz_full.transpose().A,'-',"black","ground truth")
         # 绘制对齐后的估计轨迹：蓝色实线
-        plot_traj(ax,second_stamps,second_xyz_full_aligned.transpose().A,'‑',"blue","estimated")
+        plot_traj(ax,second_stamps,second_xyz_full_aligned.transpose().A,'-',"blue","estimated")
         label="difference"
         # 用红色短线连接每一对匹配真值点与估计点，直观显示误差
         for (a,b),(x1,y1,z1),(x2,y2,z2) in zip(matches,first_xyz.transpose().A,second_xyz_aligned.transpose().A):
-            ax.plot([x1,x2],[y1,y2],'‑',color="red",label=label)
+            ax.plot([x1,x2],[y1,y2],'-',color="red",label=label)
             label=""
 
         ax.legend()
