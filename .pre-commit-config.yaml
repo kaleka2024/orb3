@@ -1,0 +1,62 @@
+# See https://pre-commit.com for more information
+# See https://pre-commit.com/hooks.html for more hooks
+#
+# For now, exclude Thirdparty so it remains a pristine
+# copy of the upstream package
+#
+exclude: ^Thirdparty/.*
+fail_fast: false
+repos:
+-   repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v5.0.0
+    hooks:
+    -   id: check-added-large-files
+    -   id: check-json
+    -   id: check-merge-conflict
+    -   id: check-xml
+    -   id: end-of-file-fixer
+    -   id: mixed-line-ending
+    -   id: trailing-whitespace
+
+# -   repo: https://github.com/pocc/pre-commit-hooks
+#     rev: v1.3.5
+#     hooks:
+#       - id: clang-tidy
+#       - id: oclint
+#       - id: uncrustify
+#       - id: cppcheck
+#       - id: include-what-you-use
+
+-   repo: https://github.com/pre-commit/mirrors-clang-format
+    rev: v20.1.0
+    hooks:
+    -   id: clang-format
+        # Preserve Thirdparty formatting
+        # Respect .clang-format if it exists, otherwise use Google
+        args: ["--fallback-style=Google"]
+
+-   repo: https://gitlab.com/daverona/pre-commit/cpp
+    rev: 0.8.0
+    hooks:
+    -   id: cpplint
+        # Don't want to deal with Examples right now...
+        # Should reenable later...
+        exclude: ^(evaluation|Examples)/.*
+        # - runtime/int is warning to use int32_t instead of "long int"
+        #   didn't feel like fixing it.
+        #
+        # - readability/todo enforces that todos should have username.
+        #
+        # - whitespace/indent_namespace and build/include_order were conflicting
+        #   choices made by clang format
+        args: ["--quiet", "--filter=-runtime/int,-readability/todo,-whitespace/indent_namespace,-build/include_order"]
+
+- repo: https://github.com/astral-sh/ruff-pre-commit
+  rev: v0.11.2
+  hooks:
+    - id: ruff
+      # evaluation/ is written in python2....
+      exclude: ^(evaluation|Examples)/.*
+      args: [ --fix ]
+    - id: ruff-format
+      exclude: ^evaluation/.*

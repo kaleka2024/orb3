@@ -1,0 +1,24 @@
+{
+  "name": "ffmpeg",
+  "version": "6.1.1",
+  "features": {
+    "avcodec": {
+      "description": ""
+    },
+    "avdevice": {
+      "description": ""
+    },
+    "avfilter": {
+      "description": ""
+    },
+    "avformat": {
+      "description": ""
+    },
+    "swresample": {
+      "description": ""
+    },
+    "swscale": {
+      "description": ""
+    }
+  }
+}

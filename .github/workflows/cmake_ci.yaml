@@ -1,0 +1,73 @@
+name: Build
+
+on:
+  pull_request:
+  push:
+    branches:
+      - master
+  workflow_dispatch:
+
+jobs:
+  build-project:
+    name: Build Project
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Checkout Project
+        uses: actions/checkout@v4.2.2
+        with:
+          submodules: true
+
+      # Load the set of APT dependencies from the install_apt_dependencies scripts
+      # to reduce repetition
+      - name: Generate dependency list
+        id: generate_deps
+        run: |
+              # Run your script and capture its output into a shell variable
+              SCRIPT_OUTPUT=$(./install_apt_dependencies.sh --deps)
+
+              # Write the variable to the GITHUB_OUTPUT file
+              echo "apt_deps=$SCRIPT_OUTPUT" >> "$GITHUB_OUTPUT"
+
+      - name: Install apt dependencies
+        uses: awalsh128/cache-apt-pkgs-action@latest
+        with:
+          packages: ${{ steps.generate_deps.outputs.apt_deps }}
+          version: 1.0
+
+      # I think this necessary to ensure alternatives are set up (for libblas, etc)
+      # It's not properly set up when restoring packages from cache
+      - name: Force install libblas and liblapack
+        run: sudo apt-get install --reinstall libblas-dev liblapack-dev
+        shell: bash
+
+      # Based on sample workflow from https://github.com/lukka/CppCMakeVcpkgTemplate/blob/v11/.github/workflows/hosted-ninja-vcpkg_submod.yml
+      - uses: lukka/get-cmake@latest
+
+      #
+      - name: Cache vcpkg
+        uses: actions/cache@v4
+        with:
+          path: ${{ github.workspace }}/vcpkg_cache
+          key: vcpkg-${{ matrix.triplet }}-${{ hashFiles('vcpkg.json', 'vcpkg_overlay/**', 'CMakeLists.txt', '**/CMakeLists.txt', 'CMakePresets.json') }}
+
+      - name: Restore from cache and setup vcpkg executable and data files.
+        uses: lukka/run-vcpkg@v11
+        with:
+          doNotCache: false
+          vcpkgGitCommitId: e3db8f65d2414c301c29a8467c6aee94e3ba09fc
+
+      # Note: if the preset misses the "configuration", it is possible to explicitly select the
+      # configuration with the additional `--config` flag, e.g.:
+      #   buildPreset: 'ninja-vcpkg'
+      #   buildPresetAdditionalArgs: "[`--config`, `Release`]"
+      #   testPreset: 'ninja-vcpkg'
+      #   testPresetAdditionalArgs: "[`--config`, `Release`]"
+      - name: Run CMake+vcpkg+Ninja+CTest to build packages and generate/build/test the code.
+        uses: lukka/run-cmake@v10
+        env:
+          VCPKG_BINARY_SOURCES: clear;files,${{ github.workspace }}/vcpkg_cache,readwrite
+          VCPKG_DEFAULT_TRIPLET: ${{ matrix.triplet }}
+        with:
+          configurePreset: 'ninja-multi-vcpkg'
+          buildPreset: 'ninja-vcpkg-Release'
+          testPreset: 'test-Release'
