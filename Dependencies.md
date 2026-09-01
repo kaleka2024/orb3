@@ -1,23 +1,11 @@
-# List of Known Dependencies
+# 已知依赖项列表
+## ORB‑SLAM3 v1.0
+本文档列举 ORB‑SLAM3 所引入的全部代码片段，以及不属于 ORB‑SLAM3 作者所有的链接库。
 
-## ORB-SLAM3 v1.0
+### src 和 include 文件夹内的代码
+- **ORBextractor.cc**：该文件是 OpenCV 库中 `orb.cpp` 的修改版本，原始代码采用 BSD 许可证。
+- **MLPnPsolver.h、MLPnPsolver.cc**：该文件是 Steffen Urban 所实现 MLPnP 算法的修改版本，源码来源于 [opengv](https://github.com/urbste/opengv)。原始代码采用 BSD 许可证。
+- ORBmatcher.cc 文件中的 **ORBmatcher::DescriptorDistance** 函数：代码取自 http://graphics.stanford.edu/~seander/bithacks.html#CountBitsSetParallel，该代码属于公有领域。
 
-In this document we list all the pieces of code included by ORB-SLAM3 and linked libraries which are not property of the authors of ORB-SLAM3.
-
-### Code in **src** and **include** folders
-
-* *ORBextractor.cc*.
-This is a modified version of `orb.cpp` of OpenCV library. The original code is BSD licensed.
-
-* *MLPnPsolver.h, MLPnPsolver.cc*.
-This is a modified version of the MLPnP of Steffen Urban from [here](https://github.com/urbste/opengv).
-The original code is BSD licensed.
-
-* Function *ORBmatcher::DescriptorDistance* in *ORBmatcher.cc*.
-The code is from: http://graphics.stanford.edu/~seander/bithacks.html#CountBitsSetParallel.
-The code is in the public domain.
-
-#####Code in Thirdparty folder
-
-* All code in **DBoW2** folder.
-This is a modified version of [DBoW2](https://github.com/dorian3d/DBoW2) and [DLib](https://github.com/dorian3d/DLib) library. All files included are BSD licensed.
+##### Thirdparty 文件夹内的代码
+- **DBoW2** 文件夹下全部代码：为 [DBoW2](https://github.com/dorian3d/DBoW2) 与 [DLib](https://github.com/dorian3d/DLib) 库的修改版本，其中所有文件均使用 BSD 许可证。

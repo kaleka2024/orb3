@@ -1,47 +1,26 @@
-# ORB-SLAM3
-Details of changes between the different versions.
+# ORB‑SLAM3 各版本之间的变更详情
+### V1.0，2021年12月22日
+- 将OpenCV静态矩阵替换为Eigen矩阵。相较于ORB‑SLAM3论文中的测试耗时，跟踪模块平均提速16%，建图模块平均提速19%。
+- 全新的标定文件格式，详见《Calibration_Tutorial》标定教程。新增双目校正与图像缩放相关配置选项。
+- 增加地图加载与保存功能。
+- 新增基于英特尔RealSense相机的实时SLAM示例。
+- 修复若干程序漏洞。
 
-### V1.0, 22th December 2021
+### V0.4：Beta测试版，2021年4月21日
+- 将OpenCV动态矩阵改为静态矩阵，提升代码运行速度。
+- 新增系统各线程运行耗时统计功能。
+- 兼容OpenCV 4.0（最低要求OpenCV 3.0）。
+- 修复若干小漏洞。
 
-- OpenCV static matrices changed to Eigen matrices. The average code speed-up is 16% in tracking and 19% in mapping, w.r.t. times reported in the ORB-SLAM3 paper.
+### V0.3：Beta测试版，2020年9月4日
+- RGB‑D兼容性：RGB‑D相关示例已适配新版本。
+- KITTI、TUM数据集兼容性：对应示例已适配新版本。
+- ROS兼容性：更新代码内旧引用，适配当前版本。
+- 配置文件解析器：YAML文件存储会话配置。旧版本参数配置出错时程序直接崩溃，无排查提示。该版本会完整解析全部配置项，当参数定义错误或字段缺失时给出明确提示。
+- 修复若干小漏洞。
 
-- New calibration file format, see file Calibration_Tutorial. Added options for stereo rectification and image resizing.
-
-- Added load/save map functionalities.
-
-- Added examples of live SLAM using Intel Realsense cameras.
-
-- Fixed several bugs.
-
-### V0.4: Beta version, 21st April 2021
-
-- Changed OpenCV dynamic matrices to static matrices to speed up the code.
-
-- Capability to measure running time of the system threads.
-
-- Compatibility with OpenCV 4.0 (Requires at least OpenCV 3.0).
-
-- Fixed minor bugs.
-
-
-### V0.3: Beta version, 4th Sep 2020
-
-- RGB-D compatibility: the RGB-D examples have been adapted to the new version.
-
-- Kitti and TUM dataset compatibility: these examples have been adapted to the new version.
-
-- ROS compatibility: updated the old references in the code to work with this version.
-
-- Config file parser: the YAML file contains the session configuration, a wrong parametrization may break the execution without any information to solve it. This version parses the file to read all the fields and give a proper answer if one of the fields have been wrongly deffined or does not exist.
-
-- Fixed minor bugs.
-
-
-### V0.2: Beta version, 7th Aug 2020
-Initial release. It has these capabilities:
-
-- Multiple-Map capabilities: it is able to handle multiple maps in the same session and merge them when a common area is detected with a seamless fussion.
-
-- Inertial sensor: the IMU initialization takes 2 seconds to achieve a scale error less than 5\% and it is reffined in the next 10 seconds until it is around 1\%. Inertial measures are integrated at frame rate to estimate the scale, gravity and velocity in order to improve the visual features detection and make the system robust to temporal occlusions.
-
-- Fisheye cameras: cameras with wide-angle and fisheye lenses are now fully supported in monocular and stereo.
+### V0.2：Beta测试版，2020年8月7日
+初始发布版本，具备以下功能：
+- 多地图能力：单次运行会话中可维护多张地图；检测到公共重叠区域时，可无缝完成地图融合合并。
+- 惯性传感器支持：IMU初始化耗时2秒，尺度误差低于5%；后续10秒内持续优化，尺度误差可降至约1%。按帧频积分IMU观测数据，求解尺度、重力方向与速度，改善视觉特征检测效果，提升系统应对短时遮挡的鲁棒性。
+- 鱼眼相机支持：单目、双目模式完整支持广角及鱼眼镜头相机。
