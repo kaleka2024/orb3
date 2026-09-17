@@ -164,18 +164,18 @@ Eigen::Vector3f KannalaBrandt8::unprojectEig(const cv::Point2f &p2D) {
  * @return cv::Point3f 相机坐标系归一化方向射线，z=1
  */
 cv::Point3f KannalaBrandt8::unproject(const cv::Point2f &p2D) {
-  // Use Newthon method to solve for theta with good precision (err ~ e‑6)
+  // Use Newthon method to solve for theta with good precision (err ~ e-6)
   // pw：归一化平面坐标，扣除主点，除以fx fy
   cv::Point2f pw((p2D.x - mvParameters[2]) / mvParameters[0],
                  (p2D.y - mvParameters[3]) / mvParameters[1]);
   float scale = 1.f;
   // theta_d：畸变后的径向距离，作为牛顿迭代初值
   float theta_d = sqrtf(pw.x * pw.x + pw.y * pw.y);
-  // 限制theta_d范围 [‑π/2, π/2]
+  // 限制theta_d范围 [-π/2, π/2]
   theta_d = fminf(fmaxf(-CV_PI / 2.f, theta_d), CV_PI / 2.f);
 
   // 径向距离大于极小值，执行牛顿迭代求解真实入射角theta
-  if (theta_d > 1e‑8) {
+  if (theta_d > 1e-8) {
     // Compensate distortion iteratively
     // 迭代初值取theta_d
     float theta = theta_d;
@@ -190,7 +190,7 @@ cv::Point3f KannalaBrandt8::unproject(const cv::Point2f &p2D) {
             k1_theta4 = mvParameters[5] * theta4;
       float k2_theta6 = mvParameters[6] * theta6,
             k3_theta8 = mvParameters[7] * theta8;
-      // 牛顿迭代修正量，f(theta)/f’(theta)
+      // 牛顿迭代修正量，f(theta)/f'(theta)
       float theta_fix =
           (theta * (1 + k0_theta2 + k1_theta4 + k2_theta6 + k3_theta8) -
            theta_d) /
@@ -236,7 +236,7 @@ Eigen::Matrix<double, 2, 3> KannalaBrandt8::projectJac(
   // f(theta)=θ +k0θ³+k1θ⁵+k2θ⁷+k3θ⁹，畸变径向函数
   double f = theta + theta3 * mvParameters[4] + theta5 * mvParameters[5] +
              theta7 * mvParameters[6] + theta9 * mvParameters[7];
-  // f’(theta)导数 df/dθ
+  // f'(theta)导数 df/dθ
   double fd = 1 + 3 * mvParameters[4] * theta2 + 5 * mvParameters[5] * theta4 +
               7 * mvParameters[6] * theta6 + 9 * mvParameters[7] * theta8;
 
@@ -483,7 +483,7 @@ bool KannalaBrandt8::matchAndtriangulate(
  * @param sigmaLevel 噪声水平
  * @param unc 不确定性
  * @param p3D 输出三角化得到3D点（相机1坐标系）
- * @return float 成功返回z深度值；负数代表各类失败码‑1‑2‑3‑4‑5
+ * @return float 成功返回z深度值；负数代表各类失败码-1-2-3-4-5
  */
 float KannalaBrandt8::TriangulateMatches(
     const std::shared_ptr<GeometricCamera> &pCamera2, const cv::KeyPoint &kp1,
@@ -501,7 +501,7 @@ float KannalaBrandt8::TriangulateMatches(
   // 两射线夹角余弦，评估视差
   const float cosParallaxRays = r1.dot(r21) / (r1.norm() * r21.norm());
 
-  // 视差过小直接返回‑1
+  // 视差过小直接返回-1
   if (cosParallaxRays > 0.9998) {
     return -1;
   }
@@ -530,13 +530,13 @@ float KannalaBrandt8::TriangulateMatches(
   Triangulate(p11, p22, Tcw1, Tcw2, x3D);
   // cv::Mat x3Dt = x3D.t();
 
-  // 相机1坐标系深度z1，小于0返回‑2
+  // 相机1坐标系深度z1，小于0返回-2
   float z1 = x3D(2);
   if (z1 <= 0) {
     return -2;
   }
 
-  // 相机2坐标系深度z2，小于0返回‑3
+  // 相机2坐标系深度z2，小于0返回-3
   float z2 = R21.row(2).dot(x3D) + Tcw2(2, 3);
   if (z2 <= 0) {
     return -3;
@@ -549,7 +549,7 @@ float KannalaBrandt8::TriangulateMatches(
   float errX1 = uv1(0) - kp1.pt.x;
   float errY1 = uv1(1) - kp1.pt.y;
 
-  // 重投影误差超限返回‑4
+  // 重投影误差超限返回-4
   if ((errX1 * errX1 + errY1 * errY1) >
       5.991 * sigmaLevel) {  // Reprojection error is high
     return -4;
@@ -562,7 +562,7 @@ float KannalaBrandt8::TriangulateMatches(
   float errX2 = uv2(0) - kp2.pt.x;
   float errY2 = uv2(1) - kp2.pt.y;
 
-  // 相机2重投影误差超限返回‑5
+  // 相机2重投影误差超限返回-5
   if ((errX2 * errX2 + errY2 * errY2) >
       5.991 * unc) {  // Reprojection error is high
     return -5;
@@ -643,16 +643,16 @@ bool KannalaBrandt8::IsEqual(const std::shared_ptr<GeometricCamera> &pCam) {
   // 基类指针向下转型为KannalaBrandt8引用
   KannalaBrandt8 &pKBCam = dynamic_cast<KannalaBrandt8 &>(*pCam);
 
-  // 比较迭代精度precision，差值大于1e‑6判定不等
-  if (abs(precision - pKBCam.GetPrecision()) > 1e‑6) return false;
+  // 比较迭代精度precision，差值大于1e-6判定不等
+  if (abs(precision - pKBCam.GetPrecision()) > 1e-6) return false;
 
   // 参数数量不一致返回false
   if (size() != pKBCam.size()) return false;
 
   bool is_same_camera = true;
-  // 循环比对全部8个相机参数，容许1e‑6误差
+  // 循环比对全部8个相机参数，容许1e-6误差
   for (size_t i = 0; i < size(); ++i) {
-    if (abs(mvParameters[i] - pKBCam.getParameter(i)) > 1e‑6) {
+    if (abs(mvParameters[i] - pKBCam.getParameter(i)) > 1e-6) {
       is_same_camera = false;
       break;
     }

@@ -171,14 +171,15 @@ vector<std::shared_ptr<KeyFrame>> KeyFrameDatabase::DetectLoopCandidates(
   // 无候选直接返回空
   if (lKFsSharingWords.empty()) return vector<std::shared_ptr<KeyFrame>>();
 
-  list<pair<float, std::shared_ptr<KeyFrame>>> lScoreAndMatch;
+  std::list<std::pair<float, std::shared_ptr<KeyFrame>>> lScoreAndMatch;
 
   // Only compare against those keyframes that share enough words
   // 第二步：按公共单词数过滤，保留单词数足够的候选
   int maxCommonWords = 0;
   // 找出最大公共单词数
-  for (list<std::shared_ptr<KeyFrame>>::iterator lit = lKFsSharingWords.begin(),
-                                                 lend = lKFsSharingWords.end();
+  for (std::list<std::shared_ptr<KeyFrame>>::iterator
+           lit = lKFsSharingWords.begin(),
+           lend = lKFsSharingWords.end();
        lit != lend; lit++) {
     if ((*lit)->mnLoopWords > maxCommonWords)
       maxCommonWords = (*lit)->mnLoopWords;
@@ -192,8 +193,9 @@ vector<std::shared_ptr<KeyFrame>> KeyFrameDatabase::DetectLoopCandidates(
   // Compute similarity score. Retain the matches whose score is higher than
   // minScore
   // 第三步：计算词袋相似度得分，超过最小阈值的保留
-  for (list<std::shared_ptr<KeyFrame>>::iterator lit = lKFsSharingWords.begin(),
-                                                 lend = lKFsSharingWords.end();
+  for (std::list<std::shared_ptr<KeyFrame>>::iterator
+           lit = lKFsSharingWords.begin(),
+           lend = lKFsSharingWords.end();
        lit != lend; lit++) {
     std::shared_ptr<KeyFrame> pKFi = *lit;
 
@@ -206,18 +208,18 @@ vector<std::shared_ptr<KeyFrame>> KeyFrameDatabase::DetectLoopCandidates(
 
       pKFi->mLoopScore = si;
       // 得分高于最小阈值则加入候选列表
-      if (si >= minScore) lScoreAndMatch.push_back(make_pair(si, pKFi));
+      if (si >= minScore) lScoreAndMatch.push_back(std::make_pair(si, pKFi));
     }
   }
 
   if (lScoreAndMatch.empty()) return vector<std::shared_ptr<KeyFrame>>();
 
-  list<pair<float, std::shared_ptr<KeyFrame>>> lAccScoreAndMatch;
+  std::list<std::pair<float, std::shared_ptr<KeyFrame>>> lAccScoreAndMatch;
   float bestAccScore = minScore;
 
   // Lets now accumulate score by covisibility
   // 第四步：共视邻域累积得分增强——利用空间连续性，每个候选加上其共视帧的得分
-  for (list<pair<float, std::shared_ptr<KeyFrame>>::iterator
+  for (std::list<std::pair<float, std::shared_ptr<KeyFrame>>>::iterator
            it = lScoreAndMatch.begin(),
            itend = lScoreAndMatch.end();
        it != itend; it++) {
@@ -250,7 +252,7 @@ vector<std::shared_ptr<KeyFrame>> KeyFrameDatabase::DetectLoopCandidates(
     }
 
     // 保存累积得分和对应最佳帧
-    lAccScoreAndMatch.push_back(make_pair(accScore, pBestKF));
+    lAccScoreAndMatch.push_back(std::make_pair(accScore, pBestKF));
     if (accScore > bestAccScore) bestAccScore = accScore;
   }
 
@@ -263,7 +265,7 @@ vector<std::shared_ptr<KeyFrame>> KeyFrameDatabase::DetectLoopCandidates(
   vpLoopCandidates.reserve(lAccScoreAndMatch.size());
 
   // 遍历累积得分列表，超过阈值且不重复的加入结果
-  for (list<pair<float, std::shared_ptr<KeyFrame>>::iterator
+  for (std::list<std::pair<float, std::shared_ptr<KeyFrame>>>::iterator
            it = lAccScoreAndMatch.begin(),
            itend = lAccScoreAndMatch.end();
        it != itend; it++) {
@@ -338,7 +340,7 @@ void KeyFrameDatabase::DetectCandidates(
 
   // ========== 处理回环候选（同地图） ==========
   if (!lKFsSharingWordsLoop.empty()) {
-    list<pair<float, std::shared_ptr<KeyFrame>>> lScoreAndMatch;
+    std::list<std::pair<float, std::shared_ptr<KeyFrame>>> lScoreAndMatch;
 
     // Only compare against those keyframes that share enough words
     // 计算最大公共单词数
@@ -368,17 +370,17 @@ void KeyFrameDatabase::DetectCandidates(
         float si = mpVoc->score(pKF->mBowVec, pKFi->mBowVec);
 
         pKFi->mLoopScore = si;
-        if (si >= minScore) lScoreAndMatch.push_back(make_pair(si, pKFi));
+        if (si >= minScore) lScoreAndMatch.push_back(std::make_pair(si, pKFi));
       }
     }
 
     if (!lScoreAndMatch.empty()) {
-      list<pair<float, std::shared_ptr<KeyFrame>>> lAccScoreAndMatch;
+      std::list<std::pair<float, std::shared_ptr<KeyFrame>>> lAccScoreAndMatch;
       float bestAccScore = minScore;
 
       // Lets now accumulate score by covisibility
       // 共视邻域累积得分
-      for (list<pair<float, std::shared_ptr<KeyFrame>>::iterator
+      for (std::list<std::pair<float, std::shared_ptr<KeyFrame>>>::iterator
                it = lScoreAndMatch.begin(),
                itend = lScoreAndMatch.end();
            it != itend; it++) {
@@ -403,7 +405,7 @@ void KeyFrameDatabase::DetectCandidates(
           }
         }
 
-        lAccScoreAndMatch.push_back(make_pair(accScore, pBestKF));
+        lAccScoreAndMatch.push_back(std::make_pair(accScore, pBestKF));
         if (accScore > bestAccScore) bestAccScore = accScore;
       }
 
@@ -429,12 +431,12 @@ void KeyFrameDatabase::DetectCandidates(
 
   // ========== 处理合并候选（跨地图） ==========
   if (!lKFsSharingWordsMerge.empty()) {
-    list<pair<float, std::shared_ptr<KeyFrame>>> lScoreAndMatch;
+    std::list<std::pair<float, std::shared_ptr<KeyFrame>>> lScoreAndMatch;
 
     // Only compare against those keyframes that share enough words
     // 最大公共单词数
     int maxCommonWords = 0;
-    for (list<std::shared_ptr<KeyFrame>>::iterator
+    for (std::list<std::shared_ptr<KeyFrame>>::iterator
               lit = lKFsSharingWordsMerge.begin(),
               lend = lKFsSharingWordsMerge.end();
          lit != lend; lit++) {
@@ -449,7 +451,7 @@ void KeyFrameDatabase::DetectCandidates(
     // Compute similarity score. Retain the matches whose score is higher than
     // minScore
     // 计算词袋相似度
-    for (list<std::shared_ptr<KeyFrame>>::iterator
+    for (std::list<std::shared_ptr<KeyFrame>>::iterator
               lit = lKFsSharingWordsMerge.begin(),
               lend = lKFsSharingWordsMerge.end();
          lit != lend; lit++) {
@@ -461,12 +463,12 @@ void KeyFrameDatabase::DetectCandidates(
         float si = mpVoc->score(pKF->mBowVec, pKFi->mBowVec);
 
         pKFi->mMergeScore = si;
-        if (si >= minScore) lScoreAndMatch.push_back(make_pair(si, pKFi));
+        if (si >= minScore) lScoreAndMatch.push_back(std::make_pair(si, pKFi));
       }
     }
 
     if (!lScoreAndMatch.empty()) {
-      list<pair<float, std::shared_ptr<KeyFrame>>> lAccScoreAndMatch;
+      std::list<std::pair<float, std::shared_ptr<KeyFrame>>> lAccScoreAndMatch;
       float bestAccScore = minScore;
 
       // Lets now accumulate score by covisibility
@@ -494,7 +496,7 @@ void KeyFrameDatabase::DetectCandidates(
           }
         }
 
-        lAccScoreAndMatch.push_back(make_pair(accScore, pBestKF));
+        lAccScoreAndMatch.push_back(std::make_pair(accScore, pBestKF));
         if (accScore > bestAccScore) bestAccScore = accScore;
       }
 
@@ -505,7 +507,7 @@ void KeyFrameDatabase::DetectCandidates(
       set<std::shared_ptr<KeyFrame>> spAlreadyAddedKF;
       vpMergeCand.reserve(lAccScoreAndMatch.size());
 
-      for (list<pair<float, std::shared_ptr<KeyFrame>>::iterator
+      for (std::list<std::pair<float, std::shared_ptr<KeyFrame>>>::iterator
                it = lAccScoreAndMatch.begin(),
                itend = lAccScoreAndMatch.end();
            it != itend; it++) {
@@ -555,8 +557,9 @@ void KeyFrameDatabase::DetectBestCandidates(
          vit != vend; vit++) {
       list<std::shared_ptr<KeyFrame>>& lKFs = mvInvertedFile[vit->first];
 
-      for (list<std::shared_ptr<KeyFrame>>::iterator lit = lKFs.begin(),
-                                                   lend = lKFs.end();
+      for (std::list<std::shared_ptr<KeyFrame>>::iterator
+               lit = lKFs.begin(),
+               lend = lKFs.end();
            lit != lend; lit++) {
         std::shared_ptr<KeyFrame> pKFi = *lit;
         // 跳过共视关键帧
@@ -578,8 +581,9 @@ void KeyFrameDatabase::DetectBestCandidates(
   // Only compare against those keyframes that share enough words
   // 最大公共单词数
   int maxCommonWords = 0;
-  for (list<std::shared_ptr<KeyFrame>>::iterator lit = lKFsSharingWords.begin(),
-                                                 lend = lKFsSharingWords.end();
+  for (std::list<std::shared_ptr<KeyFrame>>::iterator
+           lit = lKFsSharingWords.begin(),
+           lend = lKFsSharingWords.end();
        lit != lend; lit++) {
     if ((*lit)->mnPlaceRecognitionWords > maxCommonWords)
       maxCommonWords = (*lit)->mnPlaceRecognitionWords;
@@ -592,14 +596,15 @@ void KeyFrameDatabase::DetectBestCandidates(
     minCommonWords = nMinWords;
   }
 
-  list<pair<float, std::shared_ptr<KeyFrame>>> lScoreAndMatch;
+  std::list<std::pair<float, std::shared_ptr<KeyFrame>>> lScoreAndMatch;
 
   int nscores = 0;
 
   // Compute similarity score.
   // 计算词袋相似度
-  for (list<std::shared_ptr<KeyFrame>>::iterator lit = lKFsSharingWords.begin(),
-                                                 lend = lKFsSharingWords.end();
+  for (std::list<std::shared_ptr<KeyFrame>>::iterator
+           lit = lKFsSharingWords.begin(),
+           lend = lKFsSharingWords.end();
        lit != lend; lit++) {
     std::shared_ptr<KeyFrame> pKFi = *lit;
 
@@ -607,18 +612,18 @@ void KeyFrameDatabase::DetectBestCandidates(
       nscores++;
       float si = mpVoc->score(pKF->mBowVec, pKFi->mBowVec);
       pKFi->mPlaceRecognitionScore = si;
-      lScoreAndMatch.push_back(make_pair(si, pKFi));
+      lScoreAndMatch.push_back(std::make_pair(si, pKFi));
     }
   }
 
   if (lScoreAndMatch.empty()) return;
 
-  list<pair<float, std::shared_ptr<KeyFrame>>> lAccScoreAndMatch;
+  std::list<std::pair<float, std::shared_ptr<KeyFrame>>> lAccScoreAndMatch;
   float bestAccScore = 0;
 
   // Lets now accumulate score by covisibility
   // 共视邻域累积得分
-  for (list<pair<float, std::shared_ptr<KeyFrame>>::iterator
+  for (std::list<std::pair<float, std::shared_ptr<KeyFrame>>>::iterator
            it = lScoreAndMatch.begin(),
            itend = lScoreAndMatch.end();
        it != itend; it++) {
@@ -640,7 +645,7 @@ void KeyFrameDatabase::DetectBestCandidates(
         bestScore = pKF2->mPlaceRecognitionScore;
       }
     }
-    lAccScoreAndMatch.push_back(make_pair(accScore, pBestKF));
+    lAccScoreAndMatch.push_back(std::make_pair(accScore, pBestKF));
     if (accScore > bestAccScore) bestAccScore = accScore;
   }
 
@@ -650,7 +655,7 @@ void KeyFrameDatabase::DetectBestCandidates(
   set<std::shared_ptr<KeyFrame>> spAlreadyAddedKF;
   vpLoopCand.reserve(lAccScoreAndMatch.size());
   vpMergeCand.reserve(lAccScoreAndMatch.size());
-  for (list<pair<float, std::shared_ptr<KeyFrame>>::iterator
+  for (std::list<std::pair<float, std::shared_ptr<KeyFrame>>>::iterator
            it = lAccScoreAndMatch.begin(),
            itend = lAccScoreAndMatch.end();
        it != itend; it++) {
@@ -674,8 +679,8 @@ void KeyFrameDatabase::DetectBestCandidates(
 // ==============================================
 // 比较函数：按得分降序排列，用于排序
 // ==============================================
-bool compFirst(const pair<float, std::shared_ptr<KeyFrame>>& a,
-               const pair<float, std::shared_ptr<KeyFrame>>& b) {
+bool compFirst(const std::pair<float, std::shared_ptr<KeyFrame>>& a,
+               const std::pair<float, std::shared_ptr<KeyFrame>>& b) {
   return a.first > b.first;
 }
 
@@ -702,8 +707,9 @@ void KeyFrameDatabase::DetectNBestCandidates(
          vit != vend; vit++) {
       auto& lKFs = mvInvertedFile[vit->first];
 
-      for (list<std::shared_ptr<KeyFrame>>::iterator lit = lKFs.begin(),
-                                                   lend = lKFs.end();
+      for (std::list<std::shared_ptr<KeyFrame>>::iterator
+               lit = lKFs.begin(),
+               lend = lKFs.end();
            lit != lend; lit++) {
         std::shared_ptr<KeyFrame> pKFi = *lit;
 
@@ -730,14 +736,15 @@ void KeyFrameDatabase::DetectNBestCandidates(
 
   int minCommonWords = maxCommonWords * 0.8f;
 
-  list<pair<float, std::shared_ptr<KeyFrame>>> lScoreAndMatch;
+  std::list<std::pair<float, std::shared_ptr<KeyFrame>>> lScoreAndMatch;
 
   int nscores = 0;
 
   // Compute similarity score.
   // 计算词袋相似度
-  for (list<std::shared_ptr<KeyFrame>>::iterator lit = lKFsSharingWords.begin(),
-                                                 lend = lKFsSharingWords.end();
+  for (std::list<std::shared_ptr<KeyFrame>>::iterator
+           lit = lKFsSharingWords.begin(),
+           lend = lKFsSharingWords.end();
        lit != lend; lit++) {
     std::shared_ptr<KeyFrame> pKFi = *lit;
 
@@ -745,18 +752,18 @@ void KeyFrameDatabase::DetectNBestCandidates(
       nscores++;
       float si = mpVoc->score(pKF->mBowVec, pKFi->mBowVec);
       pKFi->mPlaceRecognitionScore = si;
-      lScoreAndMatch.push_back(make_pair(si, pKFi));
+      lScoreAndMatch.push_back(std::make_pair(si, pKFi));
     }
   }
 
   if (lScoreAndMatch.empty()) return;
 
-  list<pair<float, std::shared_ptr<KeyFrame>>> lAccScoreAndMatch;
+  std::list<std::pair<float, std::shared_ptr<KeyFrame>>> lAccScoreAndMatch;
   float bestAccScore = 0;
 
   // Lets now accumulate score by covisibility
   // 共视邻域累积得分
-  for (list<pair<float, std::shared_ptr<KeyFrame>>::iterator
+  for (std::list<std::pair<float, std::shared_ptr<KeyFrame>>>::iterator
            it = lScoreAndMatch.begin(),
            itend = lScoreAndMatch.end();
        it != itend; it++) {
@@ -775,7 +782,7 @@ void KeyFrameDatabase::DetectNBestCandidates(
         bestScore = pKF2->mPlaceRecognitionScore;
       }
     }
-    lAccScoreAndMatch.push_back(make_pair(accScore, pBestKF));
+    lAccScoreAndMatch.push_back(std::make_pair(accScore, pBestKF));
     if (accScore > bestAccScore) bestAccScore = accScore;
   }
 
@@ -786,7 +793,7 @@ void KeyFrameDatabase::DetectNBestCandidates(
   vpMergeCand.reserve(nNumCandidates);
   set<std::shared_ptr<KeyFrame>> spAlreadyAddedKF;
   size_t i = 0;
-  list<pair<float, std::shared_ptr<KeyFrame>>::iterator it =
+  std::list<std::pair<float, std::shared_ptr<KeyFrame>>>::iterator it =
       lAccScoreAndMatch.begin();
 
   // 取前N个候选，分别放入回环和合并列表
@@ -834,8 +841,9 @@ vector<std::shared_ptr<KeyFrame>> KeyFrameDatabase::DetectRelocalizationCandidat
          vit != vend; vit++) {
       list<std::shared_ptr<KeyFrame>>& lKFs = mvInvertedFile[vit->first];
 
-      for (list<std::shared_ptr<KeyFrame>>::iterator lit = lKFs.begin(),
-                                                   lend = lKFs.end();
+      for (std::list<std::shared_ptr<KeyFrame>>::iterator
+               lit = lKFs.begin(),
+               lend = lKFs.end();
            lit != lend; lit++) {
         std::shared_ptr<KeyFrame> pKFi = *lit;
         // 新查询则重置计数
@@ -853,8 +861,9 @@ vector<std::shared_ptr<KeyFrame>> KeyFrameDatabase::DetectRelocalizationCandidat
   // Only compare against those keyframes that share enough words
   // 最大公共单词数
   int maxCommonWords = 0;
-  for (list<std::shared_ptr<KeyFrame>>::iterator lit = lKFsSharingWords.begin(),
-                                                 lend = lKFsSharingWords.end();
+  for (std::list<std::shared_ptr<KeyFrame>>::iterator
+           lit = lKFsSharingWords.begin(),
+           lend = lKFsSharingWords.end();
        lit != lend; lit++) {
     if ((*lit)->mnRelocWords > maxCommonWords)
       maxCommonWords = (*lit)->mnRelocWords;
@@ -862,7 +871,7 @@ vector<std::shared_ptr<KeyFrame>> KeyFrameDatabase::DetectRelocalizationCandidat
 
   int minCommonWords = maxCommonWords * 0.8f;
 
-  list<pair<float, std::shared_ptr<KeyFrame>>> lScoreAndMatch;
+  std::list<std::pair<float, std::shared_ptr<KeyFrame>>> lScoreAndMatch;
 
   int nscores = 0;
 
@@ -873,18 +882,18 @@ vector<std::shared_ptr<KeyFrame>> KeyFrameDatabase::DetectRelocalizationCandidat
       nscores++;
       float si = mpVoc->score(F->mBowVec, pKFi->mBowVec);
       pKFi->mRelocScore = si;
-      lScoreAndMatch.push_back(make_pair(si, pKFi));
+      lScoreAndMatch.push_back(std::make_pair(si, pKFi));
     }
   }
 
   if (lScoreAndMatch.empty()) return vector<std::shared_ptr<KeyFrame>>();
 
-  list<pair<float, std::shared_ptr<KeyFrame>>> lAccScoreAndMatch;
+  std::list<std::pair<float, std::shared_ptr<KeyFrame>>> lAccScoreAndMatch;
   float bestAccScore = 0;
 
   // Lets now accumulate score by covisibility
   // 共视邻域累积得分
-  for (list<pair<float, std::shared_ptr<KeyFrame>>::iterator
+  for (std::list<std::pair<float, std::shared_ptr<KeyFrame>>>::iterator
            it = lScoreAndMatch.begin(),
            itend = lScoreAndMatch.end();
        it != itend; it++) {
@@ -904,7 +913,7 @@ vector<std::shared_ptr<KeyFrame>> KeyFrameDatabase::DetectRelocalizationCandidat
         bestScore = pKF2->mRelocScore;
       }
     }
-    lAccScoreAndMatch.push_back(make_pair(accScore, pBestKF));
+    lAccScoreAndMatch.push_back(std::make_pair(accScore, pBestKF));
     if (accScore > bestAccScore) bestAccScore = accScore;
   }
 
@@ -914,7 +923,7 @@ vector<std::shared_ptr<KeyFrame>> KeyFrameDatabase::DetectRelocalizationCandidat
   set<std::shared_ptr<KeyFrame>> spAlreadyAddedKF;
   vector<std::shared_ptr<KeyFrame>> vpRelocCandidates;
   vpRelocCandidates.reserve(lAccScoreAndMatch.size());
-  for (list<pair<float, std::shared_ptr<KeyFrame>>::iterator
+  for (std::list<std::pair<float, std::shared_ptr<KeyFrame>>>::iterator
            it = lAccScoreAndMatch.begin(),
            itend = lAccScoreAndMatch.end();
        it != itend; it++) {

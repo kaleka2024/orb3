@@ -434,7 +434,7 @@ void FrameDrawer::Update(const std::shared_ptr<Tracking> &pTracker) {
   mmProjectPoints = mCurrentFrame->mmProjectPoints;
   mmMatchedInImage.clear();
 
-  vpLocalMap = pTracker->GetLocalMapMPS();
+  mvpLocalMap = pTracker->GetLocalMapMPS();
   // 预分配内存避免频繁扩容
   mvMatchedKeys.clear();
   mvMatchedKeys.reserve(N);

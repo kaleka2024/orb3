@@ -1333,7 +1333,7 @@ void LoopClosing::CorrectLoop() {
 
         pMPi->SetWorldPos(eigCorrectedP3Dw.cast<float>());
         pMPi->mnCorrectedByKF = mpCurrentKF->mnId;
-        pMPi->mnCorrectionReference = pKFi->mnId;
+        pMPi->mnCorrectedReference = pKFi->mnId;   // ← BUG FIX：原为 mnCorrectionReference
         pMPi->UpdateNormalAndDepth();
       }
 
@@ -2495,7 +2495,7 @@ void LoopClosing::SearchAndFuse(
     matcher.Fuse(pKF, Scw, vpMapPoints, 4, vpReplacePoints);
 
     // Get Map Mutex
-    unique_lock<mutex> lock(pMap->mMutexMapUpdate);
+    unique_lock<mutex> lock(pMap->mMutexUpdate);
     const int nLP = vpMapPoints.size();
     // 替换重复点
     for (int i = 0; i < nLP; i++) {
